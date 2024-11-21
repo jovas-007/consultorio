@@ -1,0 +1,13 @@
+$datos = [
+"titulo" => "Cambio de clave de acceso",
+"menu" => false,
+"errores" => [],
+"data" => [],
+"subtitulo" => "Cambio de clave de acceso",
+"texto" => "Se ha enviado un correo a <b>".$email."</b> para que puedas cambiar tu clave de acceso. Cualquier duda te puedes comunicar con nosotros. No olvides revisar tu bandeja de spam.",
+"color" => "alert-success",
+"url" => "login",
+"colorBoton" => "btn-success",
+"textoBoton" => "Regresar"
+];
+$this->vista("mensajeVista",$datos);
