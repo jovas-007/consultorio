@@ -2,6 +2,11 @@
 /**
  * Controlador login
  */
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
+require_once __DIR__ . '/../modelos/LoginModelo.php';
 class Citas extends Controlador
 {
 	private $modelo;
@@ -57,39 +62,105 @@ class Citas extends Controlador
     $this->vista("citasAltaVista",$datos);
   }
 
-  public function altaCita(){
-    $idDoctor = trim($_POST['doctor'] ?? "");
-    $idPaciente = trim($_POST['paciente'] ?? "");
-    $fecha =trim( $_POST['fecha'] ?? "");
-    $hora = trim($_POST['hora'] ?? "");
-    $observacion = Helper::cadena($_POST['observacion']);
-    $id = trim($_POST['id']?? "");
-    $confirma = trim($_POST['confirma']?? "");
-    if ($confirma=="on") {
-      $edoCita = "2";
-    } else {
-      $edoCita = "1";
-    }
-
-    $data = [
-      "doctor" => $idDoctor,
-      "paciente" => $idPaciente,
-      "fecha" => $fecha,
-      "hora" => $hora,
-      "observacion" => $observacion,
-      "edoCita" => $edoCita,
-      "id" => $id
-    ];
-    if($id==""){
-      if ($this->modelo->alta($data)) {
-        header("location:".RUTA."citas");
+  public function altaCita()
+  {
+      $idDoctor = trim($_POST['doctor'] ?? "");
+      $idPaciente = trim($_POST['paciente'] ?? "");
+      $fecha = trim($_POST['fecha'] ?? "");
+      $hora = trim($_POST['hora'] ?? "");
+      $observacion = Helper::cadena($_POST['observacion']);
+      $id = trim($_POST['id'] ?? "");
+      $confirma = trim($_POST['confirma'] ?? "");
+  
+      $edoCita = ($confirma == "on") ? "2" : "1";
+  
+      $data = [
+          "doctor" => $idDoctor,
+          "paciente" => $idPaciente,
+          "fecha" => $fecha,
+          "hora" => $hora,
+          "observacion" => $observacion,
+          "edoCita" => $edoCita,
+          "id" => $id
+      ];
+  
+      if ($id == "") {
+          // Alta de nueva cita
+          if ($this->modelo->alta($data)) {
+              // Enviar correo de notificación
+              $this->enviarCorreoNotificacion($idPaciente, $idDoctor, $fecha, $hora);
+              // Mostrar alerta antes de redirigir
+              echo "<script>alert('Cita Registrada');</script>";
+              echo "<script>window.location.href='" . RUTA . "citas';</script>";
+              exit(); // Asegurarse de detener la ejecución después de redirigir
+              header("location:" . RUTA . "citas");
+          }
+      } else {
+          // Modificación de cita existente
+          if ($this->modelo->modifica($data)) {
+              header("location:" . RUTA . "citas");
+          }
       }
-    } else {
-      if ($this->modelo->modifica($data)) {
-        header("location:".RUTA."citas");
-      }
-    } 
   }
+  
+  private function enviarCorreoNotificacion($idPaciente, $idDoctor, $fecha, $hora, $observacion)
+  {
+      // Recuperar datos del paciente y doctor
+      $paciente = $this->modelo->getPacienteId($idPaciente);
+      $doctor = $this->modelo->getDoctorId($idDoctor);
+  
+      if (!$paciente || !$doctor) {
+          error_log("Error: Paciente o doctor no encontrados.");
+          return;
+      }
+  
+      $nombrePaciente = $paciente[0]['nombre'] ?? "Paciente no identificado";
+      $nombreDoctor = $doctor[0]['nombre'] ?? "Doctor no identificado";
+      // Incluye PHPMailer y configura
+      require 'PHPMailer/Exception.php';
+      require 'PHPMailer/PHPMailer.php';
+      require 'PHPMailer/SMTP.php';
+
+      // Crear mensaje
+      $msg = "Se ha registrado una nueva cita en el sistema:<br><br>";
+      $msg .= "<b>Paciente:</b> $nombrePaciente<br>";
+      $msg .= "<b>Doctor:</b> $nombreDoctor<br>";
+      $msg .= "<b>Fecha:</b> $fecha<br>";
+      $msg .= "<b>Hora:</b> $hora<br>";
+      $msg .= "<b>Observación:</b> $observacion<br><br>";
+      $msg .= "Por favor, revisa el sistema para más detalles.";
+  
+      $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+  
+      try {
+          // Configuración SMTP
+          $mail->isSMTP();
+          $mail->Host       = 'smtp.hostinger.com'; // Cambia al servidor SMTP que uses
+          $mail->SMTPAuth   = true;
+          $mail->Username   = 'sqladmin24@estrategasrde.com.mx'; // Cambia al correo configurado
+          $mail->Password   = 'AdminSQL#2024'; // Cambia a la contraseña correcta
+          $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+          $mail->Port       = 587;
+  
+          // Configuración del correo
+          $mail->setFrom('sqladmin24@estrategasrde.com.mx', 'Consultorio');
+          $mail->addAddress('jovassolis2@gmail.com'); // Correo fijo del administrador
+          $mail->isHTML(true);
+          $mail->Subject = 'Nueva cita registrada';
+          $mail->Body    = $msg;
+          $mail->AltBody = strip_tags($msg); // Versión en texto plano
+  
+          // Enviar correo
+          $mail->send();
+          error_log("Correo de notificación enviado a jovassolis2@gmail.com.");
+      } catch (\PHPMailer\PHPMailer\Exception $e) {
+          error_log("Error al enviar correo: " . $mail->ErrorInfo);
+      }
+  }
+  
+
+
+
 
   public function baja($id=""){
     if ($id=="") {

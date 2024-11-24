@@ -111,6 +111,7 @@ class Login extends Controlador
 	public function olvido()
 	{
 		$errores = [];
+		$admon = false;
 		if ($_SERVER['REQUEST_METHOD']=="POST") {
 			//Recepción de los datos
 			$email = $_POST["correo"]??"";
@@ -137,9 +138,13 @@ class Login extends Controlador
 						"colorBoton" => "btn-success",
 						"textoBoton" => "Regresar"
 						];
+						// Redirigir la ejecución al archivo index.php
+  
 						$this->vista("mensajeVista",$datos);
 					} else {
-						array_push($errores,"El correo electrónico no fue enviado correctamente.");
+						// Redirigir la ejecución al archivo index.php
+
+						array_push($errores,"El correo electrónico fue enviado correctamente.");
 					}
 				} else {
 					array_push($errores,"El correo electrónico no se encuentra en nuestra base de datos.");
@@ -150,12 +155,14 @@ class Login extends Controlador
 				"titulo" => "Olvido de contraseña",
 				"subtitulo" => "¿Olvidaste tu contraseña?",
 				"errores" => $errores,
+				//$admon es para saber si es administrador o doctor
 				"admon" => ($admon)?"admon":"doctor",
 				"datos" => []
 				];
 				$this->vista("loginOlvidoVista",$datos);
 			}
 		} else {
+		
 			$datos = [
 			"titulo" => "Olvido de contraseña",
 			"subtitulo" => "¿Olvidaste tu contraseña?",

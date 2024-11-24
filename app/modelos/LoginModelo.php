@@ -2,6 +2,9 @@
 /**
  * Login Modelo
  */
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 class LoginModelo
 {
 	public $db;
@@ -27,31 +30,59 @@ class LoginModelo
 	    return $r;
 	}
 
-	public function enviarCorreo($email='')
+	public function enviarCorreo($email = '')
 	{
-		$data = [];
-		if ($email=="") {
+		if ($email == "") {
 			return false;
-		} else {
-			$data = $this->getUsuarioCorreo($email);
-			if (!empty($data)) {
-				$id = Helper::encriptar($data["id"]);
-				$nombre = $data["nombre"];
-				//
-				$msg = $nombre. ", entra a la siguiente liga para cambiar tu clave de acceso al consultorio...<br>";
-				$msg.= "<a href='".RUTA."login/cambiarclave/".$id."'>Cambiar tu clave de acceso</a>";
-
-				$headers = "MIME-Version: 1.0\r\n"; 
-				$headers.= "Content-type:text/html; charset=UTF-8\r\n"; 
-				$headers.= "From: Consultorio\r\n"; 
-				$headers.= "Reply-to: ayuda@consultorio.com\r\n";
-				$asunto = "Cambiar clave de acceso";
-				return @mail($email,$asunto,$msg, $headers);
-			} else {
-				return false;
-			}
+		}
+	
+		$data = $this->getUsuarioCorreo($email);
+		if (empty($data)) {
+			return false;
+		}
+	
+		$id = Helper::encriptar($data["id"]);
+		$nombre = $data["nombre"];
+		$msg = $nombre . ", entra a la siguiente liga para cambiar tu clave de acceso al consultorio...<br>";
+		$msg .= "<a href='" . RUTA . "login/cambiarclave/" . $id . "'>Cambiar tu clave de acceso</a>";
+	
+		// Incluye PHPMailer y configura
+		require 'PHPMailer/Exception.php';
+		require 'PHPMailer/PHPMailer.php';
+		require 'PHPMailer/SMTP.php';
+	
+		$mail = new PHPMailer(true);
+	
+		try {
+			// Configuración del servidor SMTP
+			$mail->isSMTP();
+			$mail->Host       = 'smtp.hostinger.com'; // Cambia a tu servidor SMTP
+			$mail->SMTPAuth   = true;
+			$mail->Username   = 'sqladmin24@estrategasrde.com.mx'; // Cambia al usuario SMTP
+			$mail->Password   = 'AdminSQL#2024'; // Cambia a la contraseña SMTP
+			$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Usa `ENCRYPTION_SMTPS` si usas SSL
+			$mail->Port       = 587;
+	
+			// Configuración de destinatarios
+			$mail->setFrom('sqladmin24@estrategasrde.com.mx', 'Oscar');
+			$mail->addAddress($email); // Destinatario principal
+	
+			// Contenido del correo
+			$mail->isHTML(true);
+			$mail->Subject = 'Cambio de clave de acceso';
+			$mail->Body    = $msg;
+			$mail->AltBody = strip_tags($msg); // Versión alternativa en texto plano
+	
+			// Enviar el correo
+			$mail->send();
+			return true;
+		} catch (Exception $e) {
+			// Manejar errores
+			error_log("Error al enviar correo: " . $mail->ErrorInfo);
+			return false;
 		}
 	}
+	
 
 	public function getUsuarioCorreo($email='',$admon=true)
 	{
