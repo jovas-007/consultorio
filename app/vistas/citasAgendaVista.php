@@ -42,10 +42,12 @@
           $p.= $hr.":".$min."/";
           $p.= trim($datos["data"][5])."/"; //dia de la semana
           $p.= trim($datos["data"][6]); //estado
-          if($edo==0){
+          if($edo == 0) {
+            // Horario libre: botón interactivo
             print '<a href="'.RUTA.'citas/verificarCita/'.$p.'" class="btn btn-info">Libre</a>';
           } else {
-            print '<a href="'.RUTA.'citas/verificarCita/'.$p.'" class="btn btn-warning">'.$datos["edoCita"][$edo]["cadena"].'</a>';
+            // Horario ocupado: mostrar texto estático en lugar de botón
+            print '<span class="btn btn-warning disabled">'.$datos["edoCita"][$edo]["cadena"].'</span>';
           }
           print "</td>";
           //

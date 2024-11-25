@@ -64,7 +64,7 @@ class LoginModelo
 			$mail->Port       = 587;
 	
 			// Configuración de destinatarios
-			$mail->setFrom('sqladmin24@estrategasrde.com.mx', 'Oscar');
+			$mail->setFrom('sqladmin24@estrategasrde.com.mx', 'Sistema de citas');
 			$mail->addAddress($email); // Destinatario principal
 	
 			// Contenido del correo

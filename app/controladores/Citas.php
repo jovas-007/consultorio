@@ -88,7 +88,7 @@ class Citas extends Controlador
           // Alta de nueva cita
           if ($this->modelo->alta($data)) {
               // Enviar correo de notificación
-              $this->enviarCorreoNotificacion($idPaciente, $idDoctor, $fecha, $hora);
+              $this->enviarCorreoNotificacion($idPaciente, $idDoctor, $fecha, $hora, $observacion);
               // Mostrar alerta antes de redirigir
               echo "<script>alert('Cita Registrada');</script>";
               echo "<script>window.location.href='" . RUTA . "citas';</script>";
@@ -144,7 +144,7 @@ class Citas extends Controlador
   
           // Configuración del correo
           $mail->setFrom('sqladmin24@estrategasrde.com.mx', 'Consultorio');
-          $mail->addAddress('jovassolis2@gmail.com'); // Correo fijo del administrador
+          $mail->addAddress('tomasoscarcr7@gmail.com'); // Correo fijo del administrador
           $mail->isHTML(true);
           $mail->Subject = 'Nueva cita registrada';
           $mail->Body    = $msg;
@@ -152,7 +152,7 @@ class Citas extends Controlador
   
           // Enviar correo
           $mail->send();
-          error_log("Correo de notificación enviado a jovassolis2@gmail.com.");
+          error_log("Correo de notificación enviado a tomasoscarcr7@gmail.com.");
       } catch (\PHPMailer\PHPMailer\Exception $e) {
           error_log("Error al enviar correo: " . $mail->ErrorInfo);
       }
@@ -359,3 +359,23 @@ public function verificarHorario(){
     $this->vista("citasConfirmarVista",$datos);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+ 
+
+
+
