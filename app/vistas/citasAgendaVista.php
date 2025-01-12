@@ -71,7 +71,8 @@
             if($edo==0){
               print '<a href="'.RUTA.'citas/verificarCita/'.$p.'" class="btn btn-info">Libre</a>';
             } else {
-              print '<a href="'.RUTA.'citas/verificarCita/'.$p.'" class="btn btn-warning">'.$datos["edoCita"][$edo]["cadena"].'</a>';
+              // Horario ocupado: mostrar texto estático en lugar de botón
+            print '<span class="btn btn-warning disabled">'.$datos["edoCita"][$edo]["cadena"].'</span>';
             }
           }
           $medio++;

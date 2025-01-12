@@ -184,7 +184,7 @@ class Login extends Controlador
 			$errores = $this->modelo->verificar($usuario, $clave);
 			$admon = true;
 			//
-			//Hubo errores, buscamos si es doctor
+			//Hubo errores, buscamos si es doctor 
 			//
 			if(count($errores)>0){
 				$errores = $this->modelo->verificarDoctor($usuario, $clave);
